@@ -9,8 +9,19 @@
     <!-- Φόρτωση Font Awesome για εικονίδια -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #1f2937; color: #f3f4f6; }
-        .quiz-container { max-width: 600px; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #1f2937; 
+            color: #f3f4f6; 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quiz-container { 
+            max-width: 800px; 
+            width: 95%;
+        }
         .option-btn {
             transition: all 0.2s ease;
             box-shadow: 0 4px #4b5563;
@@ -37,6 +48,45 @@
         .text-macedon-gold {
              color: #FFD700; 
         }
+        /* Animation for correct/incorrect feedback */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        /* Optimizations for Smart TVs */
+        @media (min-width: 1920px) {
+            .quiz-container {
+                max-width: 1200px;
+            }
+            .text-4xl {
+                font-size: 3.5rem;
+            }
+            .text-xl {
+                font-size: 1.75rem;
+            }
+            .text-lg {
+                font-size: 1.5rem;
+            }
+            .p-6 {
+                padding: 2rem;
+            }
+            button {
+                min-height: 70px;
+            }
+        }
+        /* Optimizations for mobile */
+        @media (max-width: 640px) {
+            .button-group {
+                flex-direction: column;
+            }
+            .button-group button {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
     </style>
     <script>
         tailwind.config = {
@@ -45,142 +95,70 @@
                     colors: {
                         'primary': '#3b82f6', // blue-500
                         'secondary': '#f97316', // orange-500
+                        'tertiary': '#10b981', // green-500
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="p-4">
 
-    <div class="quiz-container bg-gray-800 p-6 sm:p-10 rounded-xl shadow-2xl w-full">
+    <div class="quiz-container bg-gray-800 p-4 sm:p-6 md:p-10 rounded-xl shadow-2xl w-full">
 
-        <h1 class="text-4xl font-extrabold text-primary mb-6 text-center">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-primary mb-4 sm:mb-6 text-center">
             Κουίζ Ιστορίας: Κυνός Κεφαλαί
         </h1>
 
         <div id="quiz-area">
             <!-- Εμφάνιση ερώτησης και επιλογών -->
             <div id="progress" class="text-sm mb-4 text-center text-gray-400"></div>
-            <div id="question-card" class="bg-gray-700 p-6 rounded-lg shadow-lg mb-6">
-                <p id="question-text" class="text-xl font-semibold mb-6 text-white"></p>
-                <div id="options-container" class="space-y-4">
+            <div id="question-card" class="bg-gray-700 p-4 sm:p-6 rounded-lg shadow-lg mb-4 sm:mb-6">
+                <p id="question-text" class="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-white"></p>
+                <div id="options-container" class="space-y-3 sm:space-y-4">
                     <!-- Τα κουμπιά των επιλογών θα εισαχθούν εδώ από το JS -->
                 </div>
             </div>
 
-            <div id="feedback" class="text-center text-xl font-bold mb-4 h-8"></div>
+            <div id="feedback" class="text-center text-lg sm:text-xl font-bold mb-4 h-8 fade-in"></div>
             
-            <button id="next-btn" onclick="nextQuestion()" class="w-full bg-secondary text-white py-3 rounded-lg font-bold text-lg shadow-md hover:bg-orange-600 transition duration-150 option-btn disabled" disabled>
-                Επόμενη Ερώτηση <i class="fas fa-arrow-right ml-2"></i>
+            <!-- Navigation Buttons -->
+            <div class="button-group flex flex-col sm:flex-row gap-3 mb-4">
+                <button id="prev-btn" onclick="prevQuestion()" class="flex-1 bg-gray-600 text-white py-3 px-4 rounded-lg font-bold text-lg shadow-md hover:bg-gray-700 transition duration-150 option-btn disabled" disabled>
+                    <i class="fas fa-arrow-left mr-2"></i> Προηγούμενη Ερώτηση
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="flex-1 bg-secondary text-white py-3 px-4 rounded-lg font-bold text-lg shadow-md hover:bg-orange-600 transition duration-150 option-btn disabled" disabled>
+                    Επόμενη Ερώτηση <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+            
+            <!-- Return to Central Page Button -->
+            <button onclick="window.location.href='https://conchr.github.io/Farsala-Center-Page/'" class="w-full bg-tertiary text-white py-3 rounded-lg font-bold text-lg shadow-md hover:bg-green-600 transition duration-150 option-btn">
+                <i class="fas fa-home mr-2"></i> Επιστροφή στην Κεντρική Σελίδα
             </button>
         </div>
         
         <!-- Οθόνη Αποτελεσμάτων -->
         <div id="result-area" class="hidden text-center">
-            <h2 class="text-5xl font-extrabold text-primary mb-4">Τέλος Κουίζ!</h2>
-            <p class="text-3xl mb-8">Το Σκορ σας:</p>
-            <p id="final-score" class="text-6xl font-extrabold text-macedon-gold mb-8"></p>
-            <p id="result-message" class="text-xl mb-10"></p>
-            <button onclick="restartQuiz()" class="bg-primary text-white py-3 px-6 rounded-lg font-bold text-lg shadow-md hover:bg-blue-600 transition duration-150 option-btn">
-                <i class="fas fa-redo mr-2"></i> Παίξε Ξανά
-            </button>
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-primary mb-4">Τέλος Κουίζ!</h2>
+            <p class="text-xl sm:text-2xl md:text-3xl mb-6 sm:mb-8">Το Σκορ σας:</p>
+            <p id="final-score" class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-macedon-gold mb-6 sm:mb-8"></p>
+            <p id="result-message" class="text-lg sm:text-xl mb-8 sm:mb-10"></p>
+            
+            <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                <button onclick="restartQuiz()" class="flex-1 bg-primary text-white py-3 px-4 rounded-lg font-bold text-lg shadow-md hover:bg-blue-600 transition duration-150 option-btn">
+                    <i class="fas fa-redo mr-2"></i> Παίξε Ξανά
+                </button>
+                <button onclick="window.location.href='https://conchr.github.io/Farsala-Center-Page/'" class="flex-1 bg-tertiary text-white py-3 px-4 rounded-lg font-bold text-lg shadow-md hover:bg-green-600 transition duration-150 option-btn">
+                    <i class="fas fa-home mr-2"></i> Επιστροφή στην Κεντρική Σελίδα
+                </button>
+            </div>
         </div>
 
     </div>
 
     <script>
         // Δεδομένα Κουίζ (15 Ερωτήσεις)
-        const quizData = [
-            {
-                question: "Ποια χρονιά έγινε η Μάχη των Κυνός Κεφαλών;",
-                options: ["202 π.Χ.", "197 π.Χ.", "168 π.Χ.", "217 π.Χ."],
-                answer: "197 π.Χ."
-            },
-            {
-                question: "Ποιο ήταν το κύριο πλεονέκτημα της Μακεδονικής Φάλαγγας;",
-                options: ["Η ευελιξία της σε ανώμαλο έδαφος.", "Η δύναμη ώθησης της σάρισας.", "Η ικανότητα να πολεμά με gladium.", "Η διάταξη σε μανίπουλα."],
-                answer: "Η δύναμη ώθησης της σάρισας."
-            },
-            {
-                question: "Ποιος ήταν ο ηγέτης των Ρωμαίων στη μάχη;",
-                options: ["Σκιπίων ο Αφρικανός", "Φίλιππος Ε'", "Τίτος Κουίνκτιος Φλαμινίνος", "Ιούλιος Καίσαρας"],
-                answer: "Τίτος Κουίνκτιος Φλαμινίνος"
-            },
-            {
-                question: "Τι σήμαινε κυριολεκτικά το όνομα 'Κυνός Κεφαλαί';",
-                options: ["Κορυφή του Δόρατος", "Κεφάλια Σκύλων", "Λόφοι των Ηρώων", "Τοποθεσία του Τυφώνα"],
-                answer: "Κεφάλια Σκύλων"
-            },
-            {
-                question: "Ποιο όπλο χρησιμοποιούσαν κυρίως οι Ρωμαίοι λεγεωνάριοι στη μάχη σώμα με σώμα;",
-                options: ["Σάρισα", "Τρίαινα", "Gladius (κοντό ξίφος)", "Δόρυ (Pilum)"],
-                answer: "Gladius (κοντό ξίφος)"
-            },
-            {
-                question: "Ποιο ήταν το καθοριστικό μειονέκτημα της Φάλαγγας που εκμεταλλεύτηκαν οι Ρωμαίοι;",
-                options: ["Η έλλειψη ιππικού.", "Η δυσκινησία της σε ανώμαλο έδαφος.", "Ο μικρός αριθμός στρατιωτών.", "Το ελαφρύ της βάρος."],
-                answer: "Η δυσκινησία της σε ανώμαλο έδαφος."
-            },
-            {
-                question: "Ποιος ήταν ο ηγέτης των Μακεδόνων;",
-                options: ["Αλέξανδρος ο Μέγας", "Περσέας", "Δημήτριος ο Πολιορκητής", "Φίλιππος Ε'"],
-                answer: "Φίλιππος Ε'"
-            },
-            {
-                question: "Ποια μονάδα της Ρωμαϊκής Λεγεώνας επέτρεψε την ευελιξία;",
-                options: ["Η Φάλαγγα", "Το Τάγμα", "Το Μανίπουλο", "Η Εκατονταρχία"],
-                answer: "Το Μανίπουλο"
-            },
-            {
-                question: "Ποια πλευρά της μακεδονικής παράταξης κατέρρευσε πρώτη λόγω του ανώμαλου εδάφους;",
-                options: ["Το κέντρο", "Το δεξί κέρας", "Το αριστερό κέρας", "Η εφεδρεία"],
-                answer: "Το αριστερό κέρας"
-            },
-            {
-                question: "Ποιος πήρε την πρωτοβουλία να επιτεθεί στα νώτα του αριστερού κέρατος της Φάλαγγας;",
-                options: ["Ο Ύπατος Φλαμινίνος", "Ένας ανώνυμος Ρωμαίος Χιλίαρχος", "Ο βασιλιάς Φίλιππος Ε'", "Ένας Αιτωλός σύμμαχος"],
-                answer: "Ένας ανώνυμος Ρωμαίος Χιλίαρχος"
-            },
-            {
-                question: "Πόσοι περίπου Μακεδόνες σκοτώθηκαν στη μάχη;",
-                options: ["Λιγότεροι από 1.000", "Περίπου 2.000", "Περίπου 5.000", "Πάνω από 20.000"],
-                answer: "Πάνω από 20.000" // Η σωστή απάντηση είναι συνήθως 8.000 - 13.000 νεκροί, με $5.000$ να είναι η "πειραγμένη" λάθος επιλογή. Αλλάζω τη σωστή απάντηση σε "$8.000+$"
-                // Διορθώνω τη σωστή απάντηση για να ταιριάζει με το αρχικό σας πνεύμα ($8.000+$). Η απάντηση $20.000$ είναι συνήθως ο αριθμός των αιχμαλώτων και των νεκρών μαζί, αλλά θα κρατήσω την αρχική λογική του κουίζ.
-                // Ενημέρωση: Μετά από έλεγχο, η πιο συχνά αναφερόμενη εκτίμηση νεκρών για τους Μακεδόνες είναι $8.000$, ενώ η επιλογή $20.000$ αφορά συνολικές απώλειες (νεκρούς & αιχμαλώτους).
-                // Θα διατηρήσω την αρχική σωστή απάντηση που είχατε, αλλά θα την επαναφέρω ως επιλογή για να είναι ορθή η λογική.
-                // Αλλαγή ερωτήματος 11 για να είναι η επιλογή "Περίπου 8.000+" η σωστή.
-            },
-            {
-                question: "Πόσοι περίπου Μακεδόνες σκοτώθηκαν στη μάχη;",
-                options: ["Λιγότεροι από 1.000", "Περίπου 2.000", "Περίπου 5.000", "Περίπου 8.000+"], // Τώρα η νέα επιλογή είναι "Περίπου 5.000"
-                answer: "Περίπου 8.000+" // Η αρχική σωστή απάντηση.
-            },
-            {
-                question: "Σε ποια περιοχή της Ελλάδας βρίσκεται η τοποθεσία των Κυνός Κεφαλών;",
-                options: ["Αττική", "Πελοπόννησος", "Ήπειρος", "Θεσσαλία"],
-                answer: "Θεσσαλία"
-            },
-            {
-                question: "Τι ανακήρυξε ο Φλαμινίνος στους Ισθμιακούς Αγώνες του 196 π.Χ.;",
-                options: ["Την εγκαθίδρυση ρωμαϊκής επαρχίας", "Την υποδούλωση των Ελλήνων", "Την Ελευθερία των Ελλήνων", "Τον πόλεμο κατά της Σπάρτης"],
-                answer: "Την Ελευθερία των Ελλήνων"
-            },
-            {
-                question: "Ποιο ήταν το όνομα της μακράς λόγχης που χρησιμοποιούσαν οι φαλαγγίτες;",
-                options: ["Contus", "Sarissa", "Hasta", "Pilum"],
-                answer: "Sarissa"
-            },
-            {
-                question: "Τι απέδειξε η Μάχη των Κυνός Κεφαλών για τις δύο στρατιωτικές τεχνικές;",
-                options: ["Την ισοδυναμία τους.", "Την ανωτερότητα της Φάλαγγας.", "Την ανωτερότητα της ευέλικτης Λεγεώνας.", "Ότι το ιππικό ήταν άχρηστο."],
-                answer: "Την ανωτερότητα της ευέλικτης Λεγεώνας."
-            }
-        ];
-        
-        // ** Διορθώνω τα δεδομένα του κουίζ με βάση την αλλαγή **
-        // Η νέα δομή δεδομένων έχει 16 ερωτήσεις λόγω της διόρθωσης, οπότε αφαιρώ την παλιά ερώτηση 11.
-
         const quizDataNew = [
             {
                 question: "Ποια χρονιά έγινε η Μάχη των Κυνός Κεφαλών;",
@@ -233,7 +211,6 @@
                 answer: "Ένας ανώνυμος Ρωμαίος Χιλίαρχος"
             },
             {
-                // Η Ερώτηση 11 με την τροποποίηση
                 question: "Πόσοι περίπου Μακεδόνες σκοτώθηκαν στη μάχη;",
                 options: ["Λιγότεροι από 1.000", "Περίπου 2.000", "Περίπου 5.000", "Περίπου 8.000+"],
                 answer: "Περίπου 8.000+"
@@ -260,15 +237,13 @@
             }
         ];
 
-
         let currentQuestionIndex = 0;
         let score = 0;
         let selectedOption = null;
         let isAnswered = false;
+        let userAnswers = new Array(quizDataNew.length).fill(null); // Store user answers for navigation
 
-        // Χρησιμοποιούμε τα νέα δεδομένα
         const QUIZ_DATA = quizDataNew;
-
 
         const quizArea = document.getElementById('quiz-area');
         const resultArea = document.getElementById('result-area');
@@ -277,6 +252,7 @@
         const optionsContainer = document.getElementById('options-container');
         const feedback = document.getElementById('feedback');
         const nextButton = document.getElementById('next-btn');
+        const prevButton = document.getElementById('prev-btn');
         const finalScore = document.getElementById('final-score');
         const resultMessage = document.getElementById('result-message');
 
@@ -290,9 +266,10 @@
             isAnswered = false;
             selectedOption = null;
             feedback.textContent = '';
-            nextButton.disabled = true;
-            nextButton.classList.add('disabled', 'opacity-50');
-            nextButton.classList.remove('opacity-100', 'hover:bg-orange-600');
+            feedback.classList.remove('fade-in', 'text-green-400', 'text-red-400');
+            
+            // Update navigation buttons
+            updateNavigationButtons();
             
             const current = QUIZ_DATA[currentQuestionIndex];
 
@@ -305,10 +282,46 @@
             current.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.textContent = option;
-                button.className = 'option-btn w-full text-left bg-gray-600 hover:bg-gray-500 text-white p-3 rounded-lg font-medium transition duration-150';
+                
+                // Check if this option was previously selected
+                const wasSelected = userAnswers[currentQuestionIndex] === option;
+                const isCorrect = option === current.answer;
+                
+                if (wasSelected) {
+                    if (isCorrect) {
+                        button.className = 'option-btn w-full text-left bg-green-600 text-white p-3 rounded-lg font-medium transition duration-150 correct';
+                    } else {
+                        button.className = 'option-btn w-full text-left bg-red-600 text-white p-3 rounded-lg font-medium transition duration-150 incorrect';
+                    }
+                } else {
+                    button.className = 'option-btn w-full text-left bg-gray-600 hover:bg-gray-500 text-white p-3 rounded-lg font-medium transition duration-150';
+                }
+                
                 button.onclick = () => selectOption(button, option, current.answer);
                 optionsContainer.appendChild(button);
             });
+            
+            // If returning to a previously answered question, mark the correct answer
+            if (userAnswers[currentQuestionIndex] !== null) {
+                isAnswered = true;
+                const correctAnswer = current.answer;
+                Array.from(optionsContainer.children).forEach(btn => {
+                    if (btn.textContent === correctAnswer && userAnswers[currentQuestionIndex] !== correctAnswer) {
+                        btn.classList.add('correct');
+                    }
+                    btn.classList.add('disabled');
+                    btn.onclick = null;
+                });
+                
+                // Show feedback
+                if (userAnswers[currentQuestionIndex] === correctAnswer) {
+                    feedback.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Σωστά! Η απάντηση είναι ορθή.';
+                    feedback.classList.add('text-green-400', 'fade-in');
+                } else {
+                    feedback.innerHTML = '<i class="fas fa-times-circle mr-2"></i> Λάθος. Η σωστή απάντηση ήταν: ' + correctAnswer;
+                    feedback.classList.add('text-red-400', 'fade-in');
+                }
+            }
         }
 
         // Συνάρτηση για την επιλογή απάντησης
@@ -316,6 +329,7 @@
             if (isAnswered) return;
             isAnswered = true;
             selectedOption = option;
+            userAnswers[currentQuestionIndex] = option;
 
             // Απενεργοποίηση όλων των κουμπιών
             Array.from(optionsContainer.children).forEach(btn => {
@@ -327,9 +341,11 @@
                 score++;
                 button.classList.add('correct');
                 feedback.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Σωστά! Η απάντηση είναι ορθή.';
+                feedback.classList.add('text-green-400', 'fade-in');
             } else {
                 button.classList.add('incorrect');
                 feedback.innerHTML = '<i class="fas fa-times-circle mr-2"></i> Λάθος. Η σωστή απάντηση ήταν: ' + correctAnswer;
+                feedback.classList.add('text-red-400', 'fade-in');
                 
                 // Επισήμανση της σωστής απάντησης
                 Array.from(optionsContainer.children).forEach(btn => {
@@ -343,16 +359,57 @@
             progress.textContent = `Ερώτηση ${currentQuestionIndex + 1} από ${QUIZ_DATA.length} | Σκορ: ${score}`;
 
             // Ενεργοποίηση κουμπιού επόμενης
-            nextButton.disabled = false;
-            nextButton.classList.remove('disabled', 'opacity-50');
-            nextButton.classList.add('opacity-100', 'hover:bg-orange-600');
+            updateNavigationButtons();
         }
 
         // Συνάρτηση για την μετάβαση στην επόμενη ερώτηση
         function nextQuestion() {
-            if (!isAnswered) return;
-            currentQuestionIndex++;
-            displayQuestion();
+            if (currentQuestionIndex < QUIZ_DATA.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        // Συνάρτηση για την μετάβαση στην προηγούμενη ερώτηση
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion();
+            }
+        }
+
+        // Συνάρτηση για την ενημέρωση των κουμπιών πλοήγησης
+        function updateNavigationButtons() {
+            // Previous button
+            if (currentQuestionIndex > 0) {
+                prevButton.disabled = false;
+                prevButton.classList.remove('disabled', 'opacity-50');
+                prevButton.classList.add('opacity-100', 'hover:bg-gray-700');
+            } else {
+                prevButton.disabled = true;
+                prevButton.classList.add('disabled', 'opacity-50');
+                prevButton.classList.remove('opacity-100', 'hover:bg-gray-700');
+            }
+            
+            // Next button
+            if (isAnswered || userAnswers[currentQuestionIndex] !== null) {
+                nextButton.disabled = false;
+                nextButton.classList.remove('disabled', 'opacity-50');
+                nextButton.classList.add('opacity-100', 'hover:bg-orange-600');
+            } else {
+                nextButton.disabled = true;
+                nextButton.classList.add('disabled', 'opacity-50');
+                nextButton.classList.remove('opacity-100', 'hover:bg-orange-600');
+            }
+            
+            // Change next button text if it's the last question
+            if (currentQuestionIndex === QUIZ_DATA.length - 1) {
+                nextButton.innerHTML = 'Τέλος Κουίζ <i class="fas fa-flag-checkered ml-2"></i>';
+            } else {
+                nextButton.innerHTML = 'Επόμενη Ερώτηση <i class="fas fa-arrow-right ml-2"></i>';
+            }
         }
 
         // Συνάρτηση για την εμφάνιση αποτελεσμάτων
@@ -381,6 +438,7 @@
         function restartQuiz() {
             currentQuestionIndex = 0;
             score = 0;
+            userAnswers = new Array(quizDataNew.length).fill(null);
             quizArea.classList.remove('hidden');
             resultArea.classList.add('hidden');
             displayQuestion();
